@@ -40,16 +40,20 @@ A identidade física central é:
 N = V_efetivo · phi / v_grão = V_efetivo · rho_bulk / m_grão
 ```
 
-- `V_efetivo` — volume da **coluna de grãos** (cilindro do corpo do pote vezes a
-  altura dos grãos; usar a altura da coluna já desconta o vazio do pescoço).
+- `V_efetivo` — volume ocupado pelos grãos = **capacidade interna MEDIDA do pote
+  (3223 mL) × fração preenchida `f_fill`** (o `f_fill < 1` desconta o headspace
+  vazio do pescoço). Usar o volume medido reduz muito a incerteza geométrica.
 - `phi` — **fração de empacotamento** (random packing); o complemento é o ar
   entre os grãos.
 - `v_grão`, `m_grão` — volume/massa de um grão; `rho_bulk` — densidade a granel.
 
+> **Grãos torrados.** As propriedades (densidades, dimensões) usam faixas de
+> literatura para café **torrado** (poroso e mais leve a granel que o verde).
+
 Toda quantidade incerta é uma **variável aleatória**; a incerteza é propagada
 por **Monte Carlo**.
 
-## Quatro modelos semi-independentes + ensemble
+## Modelos + ensemble
 
 Para não depender de um único método (evitar viés de análise única):
 
@@ -59,6 +63,12 @@ Para não depender de um único método (evitar viés de análise única):
 | **B** Massa/Bulk | `V·rho_bulk/m_grão` | densidade a granel + massa experimental |
 | **C** Estereologia/Visão | `n_V·V` | densidade de grãos na parede (visão computacional) |
 | **D** Forma+Packing | `V·phi(aspecto)/v_geo` | geometria do grão + física de empacotamento (esferoides) |
+| **G** Gravimétrico *(opcional)* | `(M_cheio − M_vazio)/m_grão` | **pesagem do pote** (padrão-ouro) |
+
+> **Para o melhor resultado possível:** pese o pote cheio e preencha
+> `M_FULL_JAR_G` em `beanest/config.py`. Isso ativa o modelo **G** (gravimétrico),
+> que vira uma quase-medição direta e domina o ensemble. A massa do pote vazio
+> (1240 g) já está configurada.
 
 O **ensemble (E)** combina as quatro distribuições por **pool linear ponderado**
 (acomoda divergências) e **pool logarítmico** (consenso onde concordam). Os pesos
@@ -95,11 +105,18 @@ coffee-bean-estimator/
 
 ## Como ajustar a precisão
 
-Edite `beanest/config.py`. As maiores alavancas (ver Sobol no relatório) são as
-**dimensões do pote** (`d_in_cm`, `h_beans_cm`). Se você medir o pote com uma
-régua, estreite esses priors (reduza `sd`) e o IC encolhe bastante. Fotos com um
-objeto de dimensão conhecida (régua/moeda) melhoram a calibração da visão
-computacional.
+Edite `beanest/config.py`. Com o volume do pote já medido, as maiores alavancas
+agora (ver Sobol no relatório) são as **propriedades do grão**: `s_lin` (tamanho
+real vs. experimento), `rho_app` e `rho_bulk` (densidades do torrado). Em ordem
+de impacto:
+
+1. **Pese o pote cheio** e preencha `M_FULL_JAR_G` → ativa o modelo gravimétrico
+   (de longe o mais preciso).
+2. **Pese/meça ~50 grãos do pote** → fixa `s_lin` e a massa por grão.
+3. **Meça a altura do headspace** (espaço vazio do pescoço) → estreita `f_fill`.
+4. **Fotos com escala** (régua/moeda) → melhoram a visão computacional.
+
+Reduzir o `sd` de um parâmetro estreita o IC; mudar o `mean` desloca o palpite.
 
 ## Saídas (`outputs/`)
 

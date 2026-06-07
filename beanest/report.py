@@ -124,15 +124,15 @@ def build(results: Dict, desc_table: Dict, pairwise: List[Dict], sens: Dict,
 
     md.append("")
     md.append(f"**Decomposição de incerteza (modo-comum):** a GEOMETRIA do pote "
-              f"(`d_in_cm`, `h_beans_cm`, `k_shape`) — que é compartilhada por TODOS os modelos — "
+              f"(`V_internal_cm3` medido + `f_fill`) — compartilhada por todos os modelos — "
               f"responde por **~{vardec['frac_geometria']*100:.0f}%** da variância de N; os demais "
               f"fatores (grão, empacotamento) respondem por ~{vardec['frac_resto']*100:.0f}%. "
-              f"Como a geometria é comum a todos, a concordância entre métodos NÃO reduz essa "
-              f"parcela — **medir o pote (diâmetro e altura dos grãos) com uma régua é a forma "
-              f"mais eficaz de estreitar o intervalo.**\n")
+              f"Como o volume agora é MEDIDO, a parcela geométrica caiu muito vs. a versão anterior "
+              f"(que estimava o pote por um cilindro). O que mais reduziria o IC agora é **pesar o "
+              f"pote cheio** (modelo gravimétrico G) ou medir a altura do headspace (`f_fill`).\n")
 
     md.append("## 6. Verificação de sanidade (massa total implícita)\n")
-    md.append("Usando a massa/grão consistente com o experimento (≈0.147 g, já com o ajuste de "
+    md.append("Usando a massa/grão consistente com o experimento (≈0.136 g, já com o ajuste de "
               "tamanho s_lin), a massa total de grãos implícita por modelo:\n")
     for k, kg in sanity.items():
         md.append(f"- {labels[k]}: ~{kg:.1f} kg")
@@ -164,11 +164,16 @@ def build(results: Dict, desc_table: Dict, pairwise: List[Dict], sens: Dict,
     md.append("")
 
     md.append("## 9. Limitações\n")
-    md.append("- Todos os modelos compartilham o volume do pote `V_eff`: é a maior fonte de "
-              "incerteza comum (ver Sobol). Medir o pote reduziria muito o IC.")
-    md.append("- As fotos dão escala aproximada (mão); uma régua/objeto de dimensão conhecida "
-              "na foto melhoraria a calibração da visão computacional.")
-    md.append("- Assumimos apenas grãos inteiros (conforme enunciado) e grãos de café verde.")
+    md.append("- O volume interno do pote agora é MEDIDO (3223 mL), então a maior incerteza "
+              "geométrica restante é a **fração preenchida** `f_fill` (altura do headspace), "
+              "estimada das fotos. Medir a altura vazia do pescoço reduziria ainda mais o IC.")
+    md.append("- A maior alavanca de precisão é **pesar o pote cheio** (ativa o modelo "
+              "gravimétrico G): transforma a estimativa numa quase-medição direta.")
+    md.append("- As propriedades do grão TORRADO (densidade aparente/granel, dimensões) vêm de "
+              "faixas de literatura; pesar/medir uma amostra dos grãos do pote as fixaria.")
+    md.append("- As fotos dão escala aproximada; uma régua/objeto de dimensão conhecida na foto "
+              "melhoraria a calibração da visão computacional.")
+    md.append("- Assumimos apenas grãos inteiros (conforme enunciado), café TORRADO.")
     md.append("- O Modelo C (estereologia) é o mais dependente de suposições; por isso recebe "
               "peso menor no ensemble quando diverge.")
     md.append("- A e B não são independentes entre si; o ensemble é, na prática, dominado por essa "

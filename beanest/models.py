@@ -32,7 +32,7 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from . import beans, geometry, mcstats, packing
+from . import beans, config, geometry, mcstats, packing
 from .config import MODEL_PARAMS, PARAMS, N_SAMPLES
 from .mcstats import RNG
 
@@ -119,22 +119,52 @@ class ModelD(Estimator):
         return [Vi * ph / vg for Vi, ph, vg in zip(V, phi, v_geo)]
 
 
+# ---------------------------------------------------------------------------
+# Modelo G — Gravimétrico (PADRÃO-OURO, opcional: requer pesar o pote cheio)
+# ---------------------------------------------------------------------------
+class ModelGravimetric(Estimator):
+    """N = (massa do pote cheio - massa do pote vazio) / massa por grão.
+
+    Só é ativado se config.M_FULL_JAR_G estiver definido (não None). É de longe
+    o método mais preciso: depende apenas da massa por grão (ancorada no
+    experimento, com a pequena correção de tamanho s_lin) e de duas pesagens.
+    """
+    key = "G_gravimetrico"
+    label = "G · Gravimétrico (pesagem)"
+    color = "#8c564b"
+
+    def compute(self, p):
+        net = config.M_FULL_JAR_G - config.M_EMPTY_JAR_G
+        return [net / (config.EXP_MASS_PER_BEAN_G * (s ** 3)) for s in p["s_lin"]]
+
+
 BASE_MODELS = [ModelA(), ModelB(), ModelC(), ModelD()]
+
+
+def active_models() -> List[Estimator]:
+    """Modelos ativos nesta execução. Inclui o gravimétrico se houver pesagem
+    do pote cheio (config.M_FULL_JAR_G)."""
+    ms = [ModelA(), ModelB(), ModelC(), ModelD()]
+    if config.M_FULL_JAR_G is not None:
+        ms.append(ModelGravimetric())
+    return ms
 
 # Mapeamento modelo -> PRINCÍPIO de estimação independente.
 # A e B são a MESMA física (rho_bulk ≈ phi·rho_app) em duas parametrizações:
 # contam como UM princípio (senão haveria dupla contagem e falsa precisão no
-# ensemble). C e D são princípios genuinamente independentes.
+# ensemble). C, D e G (gravimétrico) são princípios genuinamente independentes.
 MODEL_TO_PRINCIPLE = {
     "A_volumetrico": "P_bulk_packing",
     "B_massa_bulk": "P_bulk_packing",
     "C_estereologia": "P_estereologia",
     "D_forma_mc": "P_forma_geom",
+    "G_gravimetrico": "P_gravimetrico",
 }
 PRINCIPLE_LABEL = {
     "P_bulk_packing": "Bulk/Packing (A+B)",
     "P_estereologia": "Estereologia/Visão (C)",
     "P_forma_geom": "Forma+Packing (D)",
+    "P_gravimetrico": "Gravimétrico (G)",
 }
 
 
@@ -275,7 +305,7 @@ def variance_decomposition(n: int, seed: int) -> Dict[str, float]:
     rng = RNG(seed)
     model = ModelA()
     specs = model.param_specs()
-    geom = ["d_in_cm", "h_beans_cm", "k_shape"]
+    geom = ["V_internal_cm3", "f_fill"]
 
     full = {nm: mcstats.sample_spec(specs[nm], n, rng.spawn(i)) for i, nm in enumerate(specs)}
     var_total = mcstats.variance(model.compute(full))
@@ -292,10 +322,15 @@ def variance_decomposition(n: int, seed: int) -> Dict[str, float]:
 
 
 def run_all(n: int = N_SAMPLES, seed: int = 0) -> Dict:
-    """Executa os 4 modelos base + ensemble por princípios. Retorna resultados."""
+    """Executa os modelos ativos + ensemble por princípios. Retorna resultados.
+
+    Inclui o modelo gravimétrico (G) automaticamente se config.M_FULL_JAR_G
+    estiver definido.
+    """
     rng = RNG(seed)
+    active = active_models()
     samples = {}
-    for i, m in enumerate(BASE_MODELS):
+    for i, m in enumerate(active):
         samples[m.key] = m.sample(n, rng.spawn(1000 + i))
 
     principles = build_principles(samples)
@@ -308,7 +343,7 @@ def run_all(n: int = N_SAMPLES, seed: int = 0) -> Dict:
 
     return {
         "n": n,
-        "models": {m.key: m for m in BASE_MODELS},
+        "models": {m.key: m for m in active},
         "samples": samples,
         "principles": principles,
         "weights": weights,                  # por princípio
