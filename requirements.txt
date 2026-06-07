@@ -1,0 +1,14 @@
+# O NÚCLEO não requer nada além da biblioteca padrão do Python (>=3.10).
+# As dependências abaixo são OPCIONAIS e ativam recursos extras:
+#
+#   matplotlib      -> figuras PNG de alta qualidade (além dos SVG nativos)
+#   numpy + opencv  -> pipeline de visão computacional (medição de grãos nas fotos)
+#
+# Instale só o que quiser:
+#   pip install -r requirements.txt
+#
+# Sem nenhuma delas, 'python run.py' ainda roda 100% e gera o relatório HTML/SVG.
+
+numpy>=1.24
+opencv-python>=4.8
+matplotlib>=3.7
