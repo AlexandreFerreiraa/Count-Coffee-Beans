@@ -14,51 +14,72 @@ variável aleatória. A propagação de incerteza é feita por Monte Carlo
 (ver beanest.mcstats e beanest.models).
 
 ----------------------------------------------------------------------------
-PROVENIÊNCIA DAS OBSERVAÇÕES (extraídas das 3 fotos fornecidas pelo usuário)
+ESPECIFICAÇÕES MEDIDAS DO POTE (fornecidas pelo usuário) -- DADO DURO
 ----------------------------------------------------------------------------
-- O pote é um frasco cilíndrico de vidro com tampa, segurado por uma mão
-  masculina adulta (referência de escala: largura da palma ~8.5 cm, comprimento
-  punho->ponta do dedo médio ~19 cm).
-- Pela proporção mão/pote, o frasco se assemelha a um "garrafão"/jar de ~1 galão
-  (~3.8 L) a 4 L: diâmetro externo ~14-15 cm, altura do corpo ~24-27 cm, com
-  pescoço afunilando para uma tampa de ~10-11 cm.
-- Os grãos NÃO chegam ao topo: há espaço vazio no pescoço (o usuário confirma).
-  Por isso modelamos diretamente a ALTURA DA COLUNA DE GRÃOS (h_beans), e não a
-  altura total do pote — isso já contabiliza o vazio do pescoço de forma direta.
-- Grãos: aparentam ser café VERDE (cru) especial; alguns grãos claros/brancos
-  parecem ligeiramente maiores que os mais escuros (o usuário aponta isso).
-  -> tratamos os grãos do pote como ~6% maiores (linearmente) que os do
-     experimento caseiro, com incerteza (parâmetro s_lin).
-- Experimento do usuário: 89 grãos pesam 11 g  ->  0.12360 g/grão (referência).
+- Material: vidro transparente.
+- Capacidade interna (cheio até a borda): 3223 mL = 3223 cm^3.  <== usar isto!
+- Altura total: 24.5 cm. Diâmetro (corpo): 14.7 cm. Tampa (metálica): 113 mm.
+- Lacre termoencolhível transparente. Massa do pote VAZIO: 1240 g.
+
+CONSEQUÊNCIA METODOLÓGICA (melhoria importante):
+  Antes estimávamos o volume por um cilindro a partir de diâmetro/altura
+  (com ~60% da incerteza total vindo daí). Agora usamos a CAPACIDADE MEDIDA
+  (3223 cm^3) e apenas a FRAÇÃO PREENCHIDA pelos grãos (f_fill) é incerta — o
+  pescoço/headspace fica vazio. Isso reduz muito a incerteza geométrica.
+      V_eff = V_internal * f_fill
+  Conferência: um cilindro de 14.7 cm de diâmetro por 24.5 cm daria ~3700 cm^3;
+  a capacidade real (3223) é menor por causa do afunilamento do pescoço — logo a
+  capacidade medida é mais fiel que a aproximação cilíndrica.
 
 ----------------------------------------------------------------------------
-PROVENIÊNCIA DOS VALORES DE LITERATURA (café verde/cru)
+PROVENIÊNCIA DAS OBSERVAÇÕES (3 fotos) E DO GRÃO
 ----------------------------------------------------------------------------
-- Massa por grão de café verde especial: ~0.12-0.18 g (consistente com o
-  experimento 11/89 = 0.1236 g).
-- Densidade aparente (do sólido do grão, "envelope") do café verde: ~1.05-1.25
-  g/cm^3 (grão verde tem baixa porosidade; densidade real do sólido ~1.3-1.4).
-- Densidade a granel ("bulk") do café verde: ~0.60-0.74 g/cm^3
-  (regra de ofício do setor; varia com a variedade e umidade).
-- Fração de empacotamento de grãos irregulares/alongados (random packing):
-  phi ~ 0.55-0.65 (esferas monodispersas: random close packing ~0.64; grãos
-  elipsoidais alongados com atrito tendem a empacotar um pouco mais frouxo).
-- Empacotamento de esferoides (Donev et al., Science 2004): a densidade máxima
-  de empacotamento aleatório sobe de ~0.64 (esfera) para ~0.71 perto de razão
-  de aspecto ~1.3-1.5, decrescendo para razões maiores. Aplicamos um fator de
-  atrito/irregularidade para grãos reais. (Valores reimplementados/parafraseados
-  para conformidade.)
+- Grãos: TORRADOS (confirmado pelo usuário). Torra muda a física do grão:
+  o grão incha (fica maior) e fica POROSO (mais leve por volume).
+- Os grãos não chegam ao topo: há headspace vazio no pescoço (-> f_fill < 1,
+  estimado das fotos).
+- Experimento do usuário: 89 grãos pesam 11 g -> 0.12360 g/grão (referência de
+  massa por grão; assumimos que são os mesmos grãos torrados do pote).
+- O usuário observou grãos do pote ligeiramente maiores -> s_lin >= 1 (modesto).
 
-Esses números entram como PRIORS com incerteza; os dados (experimento + fotos)
-ancoram o modelo. Ajuste-os em config se tiver medições melhores.
+----------------------------------------------------------------------------
+VALORES DE LITERATURA -- CAFÉ TORRADO (whole bean)
+----------------------------------------------------------------------------
+- Massa por grão torrado: ~0.12-0.17 g (consistente com 11/89 = 0.1236 g).
+- Densidade APARENTE (envelope) do grão torrado: ~0.55-0.80 g/cm^3 (poroso;
+  bem menor que o verde ~1.1-1.2, pois a torra cria porosidade interna).
+- Densidade A GRANEL (bulk) do grão torrado inteiro: ~0.33-0.45 g/cm^3
+  (cerca de metade do café verde; café torrado é "leve e fofo").
+- Fração de empacotamento phi ~ 0.55-0.62 (geometria do empacotamento depende
+  pouco da torra; phi ~ rho_bulk / rho_app ~ 0.39/0.68 ~ 0.57).
+- Empacotamento de esferoides (Donev et al., Science 2004): densidade de
+  empacotamento aleatório sobe de ~0.64 (esfera) para ~0.71 perto de razão de
+  aspecto ~1.3-1.5, decrescendo suavemente depois. Fator de atrito reduz para
+  grãos reais. (Valores reimplementados/parafraseados para conformidade.)
+
+Esses números entram como PRIORS com incerteza; os dados (pote medido +
+experimento de massa + fotos) ancoram o modelo. Ajuste-os em config se tiver
+medições melhores. A medição que mais reduz a incerteza é PESAR O POTE CHEIO
+(ver M_FULL_JAR_G e o modelo gravimétrico).
 """
-
-from math import pi
 
 # Constante do experimento caseiro (dado duro fornecido pelo usuário)
 EXP_BEANS = 89
 EXP_MASS_G = 11.0
 EXP_MASS_PER_BEAN_G = EXP_MASS_G / EXP_BEANS  # 0.123595... g/grão
+
+# ---------------------------------------------------------------------------
+# ESPECIFICAÇÕES MEDIDAS DO POTE / MODO GRAVIMÉTRICO (padrão-ouro opcional)
+# ---------------------------------------------------------------------------
+M_EMPTY_JAR_G = 1240.0   # massa do pote VAZIO (com tampa/lacre), fornecida
+
+# >>> PREENCHA AQUI PARA O MELHOR RESULTADO POSSÍVEL <<<
+# Se você pesar o pote CHEIO (grãos + pote) numa balança e colocar o valor (g)
+# em M_FULL_JAR_G, o modelo gravimétrico é ativado:
+#     N = (M_FULL_JAR_G - M_EMPTY_JAR_G) / massa_por_grão
+# Ele é muito mais preciso que qualquer estimativa por volume e passa a dominar
+# o ensemble. Deixe como None se não tiver a pesagem.
+M_FULL_JAR_G = None      # ex.: 2350.0  (pote cheio em gramas)
 
 # Semente para reprodutibilidade
 RANDOM_SEED = 20240607
@@ -79,58 +100,53 @@ N_SOBOL = 4_000
 # absurdos nas caudas (ex.: densidade negativa).
 
 PARAMS = {
-    # ---- Geometria do pote (volume efetivo da coluna de grãos) ----
-    "d_in_cm": {
-        "dist": "truncnormal", "mean": 14.0, "sd": 1.0, "lo": 11.0, "hi": 17.0,
-        "units": "cm", "desc": "Diâmetro interno do corpo do pote",
-        "source": "Estimado das fotos pela escala da mão (palma ~8.5 cm).",
+    # ---- Geometria do pote: VOLUME MEDIDO * FRAÇÃO PREENCHIDA ----
+    "V_internal_cm3": {
+        "dist": "truncnormal", "mean": 3223.0, "sd": 60.0, "lo": 3050.0, "hi": 3400.0,
+        "units": "cm^3", "desc": "Volume interno do pote (capacidade medida)",
+        "source": "Especificação do usuário: capacidade 3223 mL.",
     },
-    "h_beans_cm": {
-        "dist": "truncnormal", "mean": 22.5, "sd": 2.0, "lo": 16.0, "hi": 28.0,
-        "units": "cm", "desc": "Altura da COLUNA de grãos (já exclui o vazio do pescoço)",
-        "source": "Estimado das fotos; grãos não alcançam o topo.",
-    },
-    "k_shape": {
-        "dist": "truncnormal", "mean": 0.97, "sd": 0.02, "lo": 0.90, "hi": 1.00,
-        "units": "-", "desc": "Correção de forma (fundo arredondado/irregularidade da seção)",
-        "source": "Cilindro idealizado superestima ligeiramente o volume útil.",
+    "f_fill": {
+        "dist": "truncnormal", "mean": 0.89, "sd": 0.035, "lo": 0.78, "hi": 0.98,
+        "units": "-", "desc": "Fração do volume interno ocupada pela coluna de grãos",
+        "source": "Das fotos: grãos vão até ~o ombro; pescoço/headspace vazio.",
     },
 
-    # ---- Grão: tamanho/massa/densidade ----
+    # ---- Grão TORRADO: tamanho/massa/densidade ----
     "s_lin": {
-        "dist": "truncnormal", "mean": 1.06, "sd": 0.04, "lo": 0.95, "hi": 1.20,
+        "dist": "truncnormal", "mean": 1.03, "sd": 0.04, "lo": 0.95, "hi": 1.15,
         "units": "-", "desc": "Fator de escala LINEAR dos grãos do pote vs. experimento",
-        "source": "Usuário observa grãos do pote ligeiramente maiores; massa ~ s_lin^3.",
+        "source": "Grãos do pote ~iguais/ligeiramente maiores que o experimento; massa ~ s_lin^3.",
     },
     "rho_app": {
-        "dist": "truncnormal", "mean": 1.13, "sd": 0.07, "lo": 0.95, "hi": 1.30,
-        "units": "g/cm^3", "desc": "Densidade aparente (envelope) do sólido do grão verde",
-        "source": "Literatura café verde ~1.05-1.25 g/cm^3.",
+        "dist": "truncnormal", "mean": 0.68, "sd": 0.06, "lo": 0.55, "hi": 0.82,
+        "units": "g/cm^3", "desc": "Densidade aparente (envelope) do grão TORRADO (poroso)",
+        "source": "Literatura café torrado ~0.55-0.80 g/cm^3.",
     },
 
     # ---- Empacotamento ----
     "phi": {
-        "dist": "truncnormal", "mean": 0.585, "sd": 0.030, "lo": 0.50, "hi": 0.66,
+        "dist": "truncnormal", "mean": 0.57, "sd": 0.030, "lo": 0.49, "hi": 0.64,
         "units": "-", "desc": "Fração de empacotamento a granel (grãos irregulares alongados)",
-        "source": "Random packing de grãos elipsoidais com atrito ~0.55-0.65.",
+        "source": "Random packing de grãos elipsoidais com atrito ~0.55-0.62.",
     },
     "rho_bulk": {
-        "dist": "truncnormal", "mean": 0.66, "sd": 0.04, "lo": 0.55, "hi": 0.74,
-        "units": "g/cm^3", "desc": "Densidade a granel (bulk) do café verde",
-        "source": "Literatura/indústria ~0.60-0.74 g/cm^3.",
+        "dist": "truncnormal", "mean": 0.39, "sd": 0.035, "lo": 0.32, "hi": 0.47,
+        "units": "g/cm^3", "desc": "Densidade a granel (bulk) do café TORRADO inteiro",
+        "source": "Literatura/indústria ~0.33-0.45 g/cm^3 (torrado é leve/fofo).",
     },
 
     # ---- Modelo C: estereologia / visão computacional ----
     # na_per_cm2 e t_layer_cm podem ser SOBRESCRITOS pela CV (ver vision.py).
     "na_per_cm2": {
-        "dist": "truncnormal", "mean": 2.6, "sd": 0.6, "lo": 1.2, "hi": 4.5,
+        "dist": "truncnormal", "mean": 2.0, "sd": 0.5, "lo": 1.0, "hi": 3.5,
         "units": "1/cm^2", "desc": "Densidade areal de grãos visíveis na parede do vidro",
-        "source": "Contagem visual aproximada nas fotos (1ª camada na parede).",
+        "source": "Contagem visual nas fotos (grão torrado é maior -> menos por cm^2).",
     },
     "t_layer_cm": {
-        "dist": "truncnormal", "mean": 0.62, "sd": 0.10, "lo": 0.40, "hi": 0.90,
+        "dist": "truncnormal", "mean": 0.70, "sd": 0.10, "lo": 0.45, "hi": 1.00,
         "units": "cm", "desc": "Espessura efetiva da 1ª camada (profundidade média do grão)",
-        "source": "Profundidade média do grão na direção de visão.",
+        "source": "Profundidade média do grão torrado na direção de visão.",
     },
     "c_stereo": {
         "dist": "truncnormal", "mean": 1.00, "sd": 0.15, "lo": 0.70, "hi": 1.40,
@@ -138,31 +154,28 @@ PARAMS = {
         "source": "Empacotamento na parede difere do interior; absorve viés do método.",
     },
 
-    # ---- Modelo D: forma do grão (Monte Carlo geométrico) ----
-    # Dimensões do grão de café verde a partir de FAIXAS DE LITERATURA
-    # (independentes do experimento de massa). O Modelo D é, portanto, uma rota
-    # de estimação independente: se concordar com A/B, isso é uma validação
-    # genuína; se divergir, é informação sobre rho_app/kappa. NÃO ajustamos estes
-    # valores para casar com a rota de massa.
+    # ---- Modelo D: forma do grão TORRADO (Monte Carlo geométrico) ----
+    # Dimensões a partir de FAIXAS DE LITERATURA para grão torrado (inchado pela
+    # torra). Rota INDEPENDENTE do experimento de massa: concordância = validação.
     "L_mm": {
-        "dist": "truncnormal", "mean": 11.0, "sd": 1.3, "lo": 7.5, "hi": 15.0,
-        "units": "mm", "desc": "Comprimento do grão (eixo maior)",
-        "source": "Faixa de literatura para café verde; ancorável pela CV.",
+        "dist": "truncnormal", "mean": 11.5, "sd": 1.3, "lo": 8.0, "hi": 15.5,
+        "units": "mm", "desc": "Comprimento do grão torrado (eixo maior)",
+        "source": "Faixa de literatura para café torrado; ancorável pela CV.",
     },
     "W_mm": {
-        "dist": "truncnormal", "mean": 7.1, "sd": 0.9, "lo": 5.0, "hi": 10.0,
-        "units": "mm", "desc": "Largura do grão (eixo médio)",
-        "source": "Faixa de literatura para café verde; ancorável pela CV.",
+        "dist": "truncnormal", "mean": 7.6, "sd": 0.9, "lo": 5.5, "hi": 10.5,
+        "units": "mm", "desc": "Largura do grão torrado (eixo médio)",
+        "source": "Faixa de literatura para café torrado; ancorável pela CV.",
     },
     "T_mm": {
-        "dist": "truncnormal", "mean": 4.4, "sd": 0.7, "lo": 3.0, "hi": 6.3,
-        "units": "mm", "desc": "Espessura do grão (eixo menor)",
-        "source": "Faixa de literatura para café verde (grão chato ~4-5 mm).",
+        "dist": "truncnormal", "mean": 5.3, "sd": 0.8, "lo": 3.5, "hi": 7.5,
+        "units": "mm", "desc": "Espessura do grão torrado (eixo menor; incha na torra)",
+        "source": "Faixa de literatura para café torrado (~5 mm).",
     },
     "kappa": {
-        "dist": "truncnormal", "mean": 0.65, "sd": 0.07, "lo": 0.50, "hi": 0.82,
+        "dist": "truncnormal", "mean": 0.71, "sd": 0.07, "lo": 0.55, "hi": 0.85,
         "units": "-", "desc": "Fator de forma: volume sólido do grão / volume do elipsoide envolvente",
-        "source": "Grão de café ~ meio-elipsoide 'cheio' (face plana); fator < 1 (incerteza ampla).",
+        "source": "Grão torrado é mais 'cheio'/arredondado que o verde; fator < 1.",
     },
     "fric_factor": {
         "dist": "truncnormal", "mean": 0.86, "sd": 0.03, "lo": 0.78, "hi": 0.94,
@@ -174,17 +187,18 @@ PARAMS = {
 
 # Quais parâmetros cada modelo consome (usado pela análise de Sobol).
 MODEL_PARAMS = {
-    "A_volumetrico": ["d_in_cm", "h_beans_cm", "k_shape", "phi", "s_lin", "rho_app"],
-    "B_massa_bulk": ["d_in_cm", "h_beans_cm", "k_shape", "rho_bulk", "s_lin"],
-    "C_estereologia": ["d_in_cm", "h_beans_cm", "k_shape", "na_per_cm2", "t_layer_cm", "c_stereo"],
-    "D_forma_mc": ["d_in_cm", "h_beans_cm", "k_shape", "L_mm", "W_mm", "T_mm", "kappa", "fric_factor"],
+    "A_volumetrico": ["V_internal_cm3", "f_fill", "phi", "s_lin", "rho_app"],
+    "B_massa_bulk": ["V_internal_cm3", "f_fill", "rho_bulk", "s_lin"],
+    "C_estereologia": ["V_internal_cm3", "f_fill", "na_per_cm2", "t_layer_cm", "c_stereo"],
+    "D_forma_mc": ["V_internal_cm3", "f_fill", "L_mm", "W_mm", "T_mm", "kappa", "fric_factor"],
+    "G_gravimetrico": ["s_lin"],
 }
 
 
-def effective_volume_cm3(d_in_cm, h_beans_cm, k_shape):
-    """Volume da coluna de grãos = cilindro (corpo) * correção de forma.
-
-    Modelar h_beans (altura dos grãos) em vez da altura total embute
-    automaticamente o vazio do pescoço.
+def effective_volume_cm3(V_internal_cm3, f_fill):
+    """Volume efetivo ocupado pelos grãos = volume interno medido * fração
+    preenchida. Usar a capacidade medida (em vez de um cilindro idealizado)
+    reduz drasticamente a incerteza geométrica; o headspace do pescoço entra
+    apenas via f_fill < 1.
     """
-    return pi * (d_in_cm / 2.0) ** 2 * h_beans_cm * k_shape
+    return V_internal_cm3 * f_fill
