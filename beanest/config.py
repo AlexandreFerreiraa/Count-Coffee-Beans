@@ -18,8 +18,18 @@ ESPECIFICAÇÕES MEDIDAS DO POTE (fornecidas pelo usuário) -- DADO DURO
 ----------------------------------------------------------------------------
 - Material: vidro transparente.
 - Capacidade interna (cheio até a borda): 3223 mL = 3223 cm^3.  <== usar isto!
-- Altura total: 24.5 cm. Diâmetro (corpo): 14.7 cm. Tampa (metálica): 113 mm.
+- Altura total: 24.5 cm. Diâmetro EXTERNO (corpo): 14.7 cm. Tampa (metálica): 113 mm.
 - Lacre termoencolhível transparente. Massa do pote VAZIO: 1240 g.
+
+ATENÇÃO — DIÂMETRO EXTERNO vs INTERNO:
+  Os 14.7 cm são o diâmetro EXTERNO. O diâmetro INTERNO é menor:
+      D_interno = D_externo - 2 * espessura_do_vidro
+  Para vidro deste porte a parede tem ~3-4 mm, logo D_interno ~ 13.9-14.1 cm.
+  PORÉM: a contagem de grãos NÃO usa o diâmetro para calcular volume — usa a
+  CAPACIDADE INTERNA MEDIDA (3223 cm^3), que já é o volume interno real. Logo a
+  distinção externo/interno NÃO enviesa N. O diâmetro interno é usado apenas
+  como (a) checagem de coerência geométrica e (b) referência da visão
+  computacional (ver beanest.geometry.geometry_consistency e WALL_THICKNESS_CM).
 
 CONSEQUÊNCIA METODOLÓGICA (melhoria importante):
   Antes estimávamos o volume por um cilindro a partir de diâmetro/altura
@@ -27,9 +37,10 @@ CONSEQUÊNCIA METODOLÓGICA (melhoria importante):
   (3223 cm^3) e apenas a FRAÇÃO PREENCHIDA pelos grãos (f_fill) é incerta — o
   pescoço/headspace fica vazio. Isso reduz muito a incerteza geométrica.
       V_eff = V_internal * f_fill
-  Conferência: um cilindro de 14.7 cm de diâmetro por 24.5 cm daria ~3700 cm^3;
-  a capacidade real (3223) é menor por causa do afunilamento do pescoço — logo a
-  capacidade medida é mais fiel que a aproximação cilíndrica.
+  Conferência: um cilindro de 14.7 cm (externo) por 24.5 cm daria ~3700 cm^3;
+  a capacidade real (3223) é menor por causa do afunilamento do pescoço E da
+  parede de vidro — logo a capacidade medida é mais fiel que a aproximação
+  cilíndrica baseada no diâmetro externo.
 
 ----------------------------------------------------------------------------
 PROVENIÊNCIA DAS OBSERVAÇÕES (3 fotos) E DO GRÃO
@@ -72,6 +83,19 @@ EXP_MASS_PER_BEAN_G = EXP_MASS_G / EXP_BEANS  # 0.123595... g/grão
 # ESPECIFICAÇÕES MEDIDAS DO POTE / MODO GRAVIMÉTRICO (padrão-ouro opcional)
 # ---------------------------------------------------------------------------
 M_EMPTY_JAR_G = 1240.0   # massa do pote VAZIO (com tampa/lacre), fornecida
+
+# Dimensões medidas do pote (cm). ATENÇÃO: o diâmetro é EXTERNO.
+D_EXT_CM = 14.7          # diâmetro EXTERNO do corpo (medido)
+JAR_HEIGHT_CM = 24.5     # altura total
+LID_DIAM_CM = 11.3       # tampa metálica (113 mm)
+V_INTERNAL_MEASURED_CM3 = 3223.0  # capacidade interna medida
+
+# Espessura da parede de vidro (cm). Não entra na contagem (usamos o volume
+# medido), mas serve para estimar o diâmetro INTERNO e checar coerência.
+# Vidro deste porte: parede ~3-4 mm. Faixa para o cross-check de coerência:
+WALL_THICKNESS_CM = 0.35
+WALL_THICKNESS_LO_CM = 0.25
+WALL_THICKNESS_HI_CM = 0.45
 
 # >>> PREENCHA AQUI PARA O MELHOR RESULTADO POSSÍVEL <<<
 # Se você pesar o pote CHEIO (grãos + pote) numa balança e colocar o valor (g)

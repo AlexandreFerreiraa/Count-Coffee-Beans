@@ -1,5 +1,5 @@
 {
-  "_comentario": "Calibracao de escala para a visao computacional. Diametro do pote = 14.7 cm (especificacao). Para cada foto, informe a largura do pote em PIXELS na imagem (meca no editor de imagem). Alternativamente informe diretamente cm_per_px. A chave 'default' vale para qualquer foto nao listada.",
+  "_comentario": "Calibracao de escala da visao computacional. IMPORTANTE: meca a largura da SILHUETA EXTERNA do pote em PIXELS e pareie com o DIAMETRO EXTERNO (14.7 cm) - assim a escala (cm/px) fica correta na face frontal do vidro (o vidro fino ~3mm torna desprezivel a diferenca ate os graos na parede interna). Alternativamente informe cm_per_px direto. A chave 'default' vale para fotos nao listadas.",
   "default": { "jar_diameter_cm": 14.7, "jar_diameter_px": 900 },
   "foto1.jpg": { "jar_diameter_cm": 14.7, "jar_diameter_px": 900 },
   "foto2.jpg": { "jar_diameter_cm": 14.7, "jar_diameter_px": 820 },

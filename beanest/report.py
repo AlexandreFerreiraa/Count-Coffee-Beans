@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 from typing import Dict, List
 
-from . import plotting
+from . import plotting, geometry, config as cfg
 from .config import PARAMS, EXP_BEANS, EXP_MASS_G, EXP_MASS_PER_BEAN_G
 from .mcstats import median, summary
 
@@ -130,6 +130,21 @@ def build(results: Dict, desc_table: Dict, pairwise: List[Dict], sens: Dict,
               f"Como o volume agora é MEDIDO, a parcela geométrica caiu muito vs. a versão anterior "
               f"(que estimava o pote por um cilindro). O que mais reduziria o IC agora é **pesar o "
               f"pote cheio** (modelo gravimétrico G) ou medir a altura do headspace (`f_fill`).\n")
+
+    # ---- coerência geométrica (diâmetro externo vs interno) ----
+    gc = geometry.geometry_consistency(cfg.D_EXT_CM, cfg.JAR_HEIGHT_CM,
+                                       cfg.V_INTERNAL_MEASURED_CM3,
+                                       cfg.WALL_THICKNESS_LO_CM, cfg.WALL_THICKNESS_HI_CM)
+    md.append("**Coerência geométrica (diâmetro externo × interno).** "
+              f"O diâmetro medido ({gc['d_ext_cm']:.1f} cm) é EXTERNO. Com parede de vidro de "
+              f"~{cfg.WALL_THICKNESS_LO_CM*10:.0f}-{cfg.WALL_THICKNESS_HI_CM*10:.0f} mm, o diâmetro "
+              f"INTERNO do corpo é ≈ **{gc['d_in_lo_cm']:.1f}-{gc['d_in_hi_cm']:.1f} cm**. "
+              f"A capacidade medida (3223 mL) é coerente: um cilindro com esse diâmetro interno "
+              f"(~{gc['d_in_mid_cm']:.1f} cm) conteria o volume em ~{gc['h_eff_body_cm']:.1f} cm de "
+              f"altura útil, menor que os {gc['height_cm']:.1f} cm totais — a diferença é o pescoço "
+              f"afunilado (coerente: {'sim' if gc['coherent'] else 'NÃO'}). "
+              "**A contagem usa o volume MEDIDO (3223 mL), não o diâmetro**, então a distinção "
+              "externo/interno não afeta N; ela só importa para a escala da visão computacional.\n")
 
     md.append("## 6. Verificação de sanidade (massa total implícita)\n")
     md.append("Usando a massa/grão consistente com o experimento (≈0.136 g, já com o ajuste de "
