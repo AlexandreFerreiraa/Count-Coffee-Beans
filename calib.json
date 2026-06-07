@@ -1,0 +1,7 @@
+{
+  "_comentario": "Calibracao de escala para a visao computacional. Para cada foto, informe o diametro conhecido do pote em cm e a largura do pote em PIXELS na imagem (meca no editor de imagem). Alternativamente informe diretamente cm_per_px. A chave 'default' vale para qualquer foto nao listada.",
+  "default": { "jar_diameter_cm": 14.0, "jar_diameter_px": 900 },
+  "foto1.jpg": { "jar_diameter_cm": 14.0, "jar_diameter_px": 900 },
+  "foto2.jpg": { "jar_diameter_cm": 14.0, "jar_diameter_px": 820 },
+  "foto3.jpg": { "cm_per_px": 0.0156 }
+}
